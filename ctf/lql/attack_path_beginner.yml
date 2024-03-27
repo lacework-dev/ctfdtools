@@ -1,0 +1,13 @@
+queryId: lw_custom_search
+queryText: |-
+  {
+      source {
+        LW_APA_ATTACK_PATHS ap
+      }
+      filter {
+        ap.METRICS:path_severity = "HIGH"
+      }
+      return {
+        ap.DOMAIN_ID
+      }
+  }

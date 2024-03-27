@@ -1,0 +1,36 @@
+---
+challenges:
+- name: "sure. we'll pass the audit"
+  value: 5 
+  type: standard 
+  state: visible
+  description: |
+    We have an audit coming up and have been using {framework} reports as our guide toward compliance. We'd like to know how many compliance issues we have to deal with this week in the account {cloudaccount}.
+     
+    From the menu in the left column, put your pointer over Compliance and select Cloud.  Filter the list of reports to find the {framework} report for the account {cloudaccount}.
+    
+    How many High and Critical POLICIES are currently flagged as Non-compliant?  
+  hints:
+  - content: Can we do screenshots in hints? Screenshots of the filter location
+    cost: 1
+  - content: Screenshot of the summary compliance data in the reesults grid
+    cost: 2
+
+- name: "it's called vuln management, heard of it?"
+  value: 5 
+  type: standard 
+  state: visible
+  description: |
+    The CISO just agreed to present rolling updates on the new vulnerability management program to the board of directors over the next quarter. For the next update, the CISO wants to highlight a particular host that has been prioritized to be the top work item using Lacework data.  Which means, someone is now responsible for identifying the host that will be showcased in the CISO's next report. Any guesses on who that person is?  
+    
+    Navigate to the Host Vulnerabilities dossier and make sure you landed on the Host tab on the top of your screen. Filter the list of hosts to find the hostname that has the most vulnerabilities that are:  
+    - Fixable  
+    - Active package status  
+    - Critical or High severity  
+
+- name: "There's a difference between knowing the path and walking the path"
+  value: 10 
+  type: standard 
+  state: visible
+  description: |
+    Security has concerns over which internet facing assets are more likely to be used as a vessel in an attack. Using the attack path -> top work items dashboard, how many High severity Attack Paths does Lacework identify?

@@ -1,6 +1,7 @@
 import importlib
 import json
 import logging
+import os
 import re
 import yaml
 from jinja2 import Template, DebugUndefined
@@ -165,16 +166,20 @@ class CTFBuilder:
     def _parse_challenges(self, challenges):
         challenges = self._replace_vars(challenges)
         parsed = {}
+        saved_dir = os.getcwd()
         for category in challenges.keys():
             parsed[category] = []
             for challenge in challenges[category]: 
                 try:
                     # Look for a custom parse_challenge function in schema/1_category/__init__.py for each category
-                    ctf = importlib.machinery.SourceFileLoader(category, f'{self._schema}/{category}/__init__.py').load_module()
+                    os.chdir(f'{saved_dir}/{self._schema}')
+                    ctf = importlib.machinery.SourceFileLoader(category, f'{category}/__init__.py').load_module()
                     if hasattr(ctf, 'parse_challenge'):
                         challenge = ctf.parse_challenge(challenge, self._config, self._lw)
                 except Exception as error:
                     self._logger.warning(f"Failed parsing '{challenge['name']}' challenge in custom parse_challenge function: Error: {error}")
+                finally:
+                    os.chdir(saved_dir)
                 # If challenge has no flags, it is unsolvable. Print a warning and hide the challenge.
                 if len(challenge.get('flags', [])) < 1:
                     self._logger.warning(f"'{challenge['name']}' has no flags and is not solvable. Setting visiblity to hidden.")

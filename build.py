@@ -53,30 +53,27 @@ def main():
         if not isfile(f'{args.schema}/config.yml'):
             raise Exception('No config.yml file found in the CTF schema directory {args.schema}')
 
-    # Build or load configuration
-    if args.config:
-        logger.debug('Using provided config.json')
-        config = json.loads(args.config.read())
-        lw = Lacework(config['profile'], config['subaccount'])
-    else:
+    if args.generate_config:
         logger.debug(f'Build new configuration using the {args.profile} profile.')
         lw = Lacework(args.profile)
-        config = {}
+        # At a minimum config must contain CTFd details and Lacework profile/account
+        config = {'ctfd_api_key': '', 'ctfd_url': '', 'profile': args.profile, 'account': lw.account}
         if isfile(f'{args.schema}/__init__.py'):
             logger.info(f'Loading module from schema: {args.schema}')
             ctf = importlib.machinery.SourceFileLoader('schema', f'{args.schema}/__init__.py').load_module()
+            # Change working directory so that loaded function can access correct lql directory
             saved_dir = os.getcwd()
             os.chdir(f'{saved_dir}/{args.schema}')
             if hasattr(ctf, 'build_config'):
-                config = ctf.build_config(lw)
-                lw.subaccount = config['subaccount']
+                config = ctf.build_config(config, lw)
             os.chdir(saved_dir)
-
-    logger.info(json.dumps(config))
-    if args.generate_config:
         print(json.dumps(config))
         sys.exit(0)
 
+
+    logger.debug('Using provided config.json')
+    config = json.loads(args.config.read())
+    lw = Lacework(config['profile'], config['subaccount'])
     ctfd = CTFd(config['ctfd_api_key'], config['ctfd_url'])
     cb = CTFBuilder(ctfd, lw, config)
 

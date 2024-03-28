@@ -15,9 +15,6 @@ from prompt_toolkit.shortcuts import checkboxlist_dialog
 from prompt_toolkit.shortcuts import input_dialog
 
 
-VERSION = '0.0.2'
-
-
 # Uncomment the following line for debug information on 3rd party modules
 # logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -37,7 +34,6 @@ def parse_args():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-c', '--config', type=argparse.FileType('r'), help='Use specified CTF build configuration.')
     group.add_argument('-g', '--generate-config', action='store_true', help='Generate CTF build configuration from schema.')
-    parser.add_argument('-v', '--version', action='version', version=f'%(prog)s {VERSION}')
     parser.add_argument('-p', '--profile', default='default', help='Specify profile to use from lacework CLI configuration. Defaults to \'default\'.')
     parser.add_argument('-s', '--schema', default='ctf', help='Path to CTF schema directory. Defaults to \'ctf\'.')
     return parser.parse_args()

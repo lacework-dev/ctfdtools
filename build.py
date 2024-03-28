@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
+import importlib
 import json
 import logging
+import os
 import sys
 from ctfbuilder import CTFBuilder
 from ctfd import CTFd
@@ -17,7 +19,7 @@ VERSION = '0.0.2'
 
 
 # Uncomment the following line for debug information on 3rd party modules
-logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+# logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -41,75 +43,6 @@ def parse_args():
     return parser.parse_args()
 
 
-def choose_option(data, entity):
-    choices = []
-    results = ''
-    if entity == 'subaccount':
-        for account in data[0]['accounts']:
-            choices.append((account['accountName'], account['accountName']))
-        results = radiolist_dialog(
-            title='Subaccounts',
-            text='Which subaccount would you like to use?',
-            values=choices
-        ).run()
-
-    elif entity == 'aws_accounts':
-        for account in data:
-            text = f"{account['account']} ({account['name']})"
-            choices.append((account['account'], text))
-        results = checkboxlist_dialog(
-            title='AWS Accounts',
-            text='Which AWS account(s) would you like to use?',
-            values=choices
-        ).run()
-
-    elif entity == 'identity':
-        identities = sorted(data, reverse=True, key=lambda x: x['METRICS']['risk_score'])
-        for identity in identities:
-            user = identity['PRINCIPAL_ID'].split('/')[1]
-            risk_score = identity['METRICS']['risk_score']
-            risks = []
-            for risk in identity['METRICS']['risks']:
-                risks.append(f'    {risk}')
-            risks = "\n".join(risks)
-            text = f'{user}  Score: {risk_score}\n{risks}\n'
-            choices.append((identity['PRINCIPAL_ID'], text))
-        results = radiolist_dialog(
-            title='Identities',
-            text='Which identity would you like to use?',
-            values=choices
-        ).run()
-
-    elif entity == 'ctfd_url':
-        results = input_dialog(
-            title='Enter CTFd URL',
-            text='https://xxx.xxx.xxx.xxx:port').run()
-
-    elif entity == 'ctfd_api_key':
-        results = input_dialog(
-            password=True,
-            title='Enter CTFd API Key',
-            text='Provide API key from a CTFd admin account').run()
-
-    return results
-
-
-def build_config(lw):
-    config = {'account': lw.account, 'profile': lw.profile}
-    config['subaccount'] = choose_option(lw.get_lw_subaccounts(), 'subaccount')
-    lw.subaccount = config['subaccount']
-    config['aws_accounts'] = choose_option(lw.get_aws_accounts(), 'aws_accounts')
-    template = '('
-    for aws_account in config['aws_accounts']:
-        template = template + f'I.PRINCIPAL_ID LIKE "%::{aws_account}:%" OR '
-    template = template + '0=1)'
-    config['aws_principal_id'] = choose_option(lw.run_lw_query('identities.yml', template), 'identity')
-    config['aws_user'] = config['aws_principal_id'].split('/')[1]
-    config['ctfd_url'] = choose_option('', 'ctfd_url')
-    config['ctfd_api_key'] = choose_option('', 'ctfd_api_key')
-    return config
-
-
 def main():
     args = parse_args()
 
@@ -128,8 +61,16 @@ def main():
     else:
         logger.debug(f'Build new configuration using the {args.profile} profile.')
         lw = Lacework(args.profile)
-        config = build_config(lw)
-        lw.subaccount = config['subaccount']
+        config = {}
+        if isfile(f'{args.schema}/__init__.py'):
+            logger.info(f'Loading module from schema: {args.schema}')
+            ctf = importlib.machinery.SourceFileLoader('schema', f'{args.schema}/__init__.py').load_module()
+            saved_dir = os.getcwd()
+            os.chdir(f'{saved_dir}/{args.schema}')
+            if hasattr(ctf, 'build_config'):
+                config = ctf.build_config(lw)
+                lw.subaccount = config['subaccount']
+            os.chdir(saved_dir)
 
     logger.info(json.dumps(config))
     if args.generate_config:

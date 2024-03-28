@@ -17,14 +17,11 @@ VERSION = '0.0.2'
 
 
 # Uncomment the following line for debug information on 3rd party modules
-# logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = logging.StreamHandler(stream=sys.stdout)
-
-# Change this to enable different levels of logging (DEBUG, INFO, WARNING ...)
-# handler.setLevel(logging.INFO)
 handler.setLevel(logging.WARNING)
 
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')

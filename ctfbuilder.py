@@ -156,7 +156,7 @@ class CTFBuilder:
         replace_vars = {}
         for key, value in self._config.items():
             replace_vars[f'CONFIG_{key.upper()}'] = value
-        data = json.loads(template.render(self._config))
+        data = json.loads(template.render(replace_vars))
         return data
 
 

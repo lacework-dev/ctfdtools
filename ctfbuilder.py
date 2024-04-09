@@ -153,13 +153,10 @@ class CTFBuilder:
             else:
                 data = json.loads(json.dumps(data).replace('{{ ' + file['location'].split('/')[1] + ' }}', '/files/' + file['location']))
         template = Template(json.dumps(data), undefined=DebugUndefined)
-        data = json.loads(template.render(
-            CONFIG_AWS_USER=self._config['aws_user'],
-            CONFIG_AWS_PRINCIPAL_ID=self._config['aws_principal_id'],
-            CONFIG_ACCOUNT=self._config['account'],
-            CONFIG_SUBACCOUNT=self._config['subaccount'],
-            CONFIG_AWS_ACCOUNTS=self._config['aws_accounts']
-        ))
+        replace_vars = {}
+        for key, value in self._config.items():
+            replace_vars[f'CONFIG_{key.upper()}'] = value
+        data = json.loads(template.render(self._config))
         return data
 
 

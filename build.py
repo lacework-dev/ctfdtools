@@ -69,6 +69,8 @@ def main():
 
     logger.debug('Using provided config.json')
     config = json.loads(args.config.read())
+    if not config.get('subaccount'):
+        config['subaccount'] = config['account']
     lw = Lacework(config['profile'], config['subaccount'])
     ctfd = CTFd(config['ctfd_api_key'], config['ctfd_url'])
     cb = CTFBuilder(ctfd, lw, config)

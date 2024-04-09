@@ -67,7 +67,7 @@ def main():
         sys.exit(0)
 
 
-    logger.debug('Using provided config.json')
+    logger.debug(f"Using provided config {args.config}")
     config = json.loads(args.config.read())
     if not config.get('subaccount'):
         config['subaccount'] = config['account']

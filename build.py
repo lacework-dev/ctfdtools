@@ -30,7 +30,7 @@ logger.addHandler(handler)
 
 def parse_args():
     logger.debug('Parsing command line arguments')
-    parser = argparse.ArgumentParser(description=f'Create a prospect/customer Lacework CTF in CTFd. Default behavior with no arguments creates a config and builds the CTF in CTFd.')
+    parser = argparse.ArgumentParser(description=f'Create a prospect/customer Lacework CTF in CTFd.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-c', '--config', type=argparse.FileType('r'), help='Use specified CTF build configuration.')
     group.add_argument('-g', '--generate-config', action='store_true', help='Generate CTF build configuration from schema.')

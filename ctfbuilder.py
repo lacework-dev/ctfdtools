@@ -29,6 +29,39 @@ class CTFBuilder:
         self._build_configuration()
         self._build_challenges()
 
+    def get_answers(self):
+        answers = '''
+                      _
+                     | |
+                     | |===( )   //////
+                     |_|   |||  | o o|
+                            ||| ( c  )                  ____
+                             ||| \= /                  ||   \_
+                              ||||||                   ||     |
+                              ||||||                ...||__/|-"
+                              ||||||             __|________|__
+                                |||             |______________|
+                                |||             || ||      || ||
+                                |||             || ||      || ||
+        ------------------------|||-------------||-||------||-||-------
+                                |__>            || ||      || ||
+
+
+        can i haz flags?
+
+        .:. challenges .:.
+        '''
+        challenges = self._ctfd.get_challenge_list()
+        for challenge in challenges['data']:
+            answers = f"{answers}\n        name: {challenge['name']}"
+            answers = f"{answers}\n        category: {challenge['category']}"
+            answers = f"{answers}\n        flags:"
+            data = []
+            flags = self._ctfd.get_challenge_flags(challenge['id'])['data']
+            for flag in flags: answers = f"{answers} {flag['content']},"
+            answers = f'{answers[:-1]}\n'
+        return answers
+
 
     def _get_existing_pages(self):
        ctf_pages = {}

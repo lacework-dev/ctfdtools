@@ -36,6 +36,7 @@ def parse_args():
     group.add_argument('-g', '--generate-config', action='store_true', help='Generate CTF build configuration from schema.')
     parser.add_argument('-p', '--profile', default='default', help='Specify profile to use from lacework CLI configuration. Defaults to \'default\'.')
     parser.add_argument('-s', '--schema', default='ctf', help='Path to CTF schema directory. Defaults to \'ctf\'.')
+    parser.add_argument('-a', '--answers', action='store_true', help='Print out challenge names and anwers/flags.')
     return parser.parse_args()
 
 
@@ -77,6 +78,9 @@ def main():
 
     # Build out the CTF using the above configuration
     cb.build_ctf(args.schema)
+
+    if args.answers:
+        print(cb.get_answers())
 
 
 if __name__ == "__main__":

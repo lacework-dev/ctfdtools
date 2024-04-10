@@ -157,7 +157,7 @@ class CTFBuilder:
                     hint['challenge_id'] = self._challenges[challenge['name']]['id']
                     self._ctfd.post_hint(hint)
                 for tag in tags:
-                    self._logger.debug(f"Posting tag to {challenge['name']} challenge: {hint}")
+                    self._logger.debug(f"Posting tag to {challenge['name']} challenge: {tag}")
                     tag['challenge_id'] = self._challenges[challenge['name']]['id']
                     self._ctfd.post_tag(tag)
 

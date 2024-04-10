@@ -75,11 +75,13 @@ class CTFBuilder:
         ctf_challenges = {}
         challenges = self._ctfd.get_challenge_list()
         for challenge in challenges['data']:
-            data = { 'id': challenge['id'], 'flags': [], 'hints': [] }
+            data = { 'id': challenge['id'], 'flags': [], 'hints': [], 'tags': [] }
             flags = self._ctfd.get_challenge_flags(challenge['id'])['data']
             for flag in flags: data['flags'].append(flag['id'])
             hints = self._ctfd.get_challenge_hints(challenge['id'])['data']
             for hint in hints: data['hints'].append(hint['id'])
+            tags = self._ctfd.get_challenge_tags(challenge['id'])['data']
+            for tag in tags: data['tags'].append(tag['id'])
             ctf_challenges[challenge['name']] = data
         return ctf_challenges
 
@@ -122,6 +124,8 @@ class CTFBuilder:
                 # Check for hints, move to variable for seperate submission, delete hints from challenge object
                 hints = challenge.get('hints', [])
                 if len(hints) > 0: del challenge['hints']
+                tags = challenge.get('tags', [])
+                if len(tags) > 0: del challenge['tags']
                 # Replace challenge names listed in requirements with their id
                 if challenge.get('requirements', {}).get('prerequisites'):
                    prerequisites = []
@@ -132,11 +136,13 @@ class CTFBuilder:
                     # Update existing challenge instead of creating new
                     self._logger.info(f"Updating existing challenge named {challenge['name']}")
                     self._ctfd.patch_challenge(challenge, self._challenges[challenge['name']]['id'])
-                    # Remove existing flags and hints
+                    # Remove existing flags, hints, and tags
                     for flag in self._challenges[challenge['name']]['flags']:
                         self._ctfd.delete_flag(flag)
                     for hint in self._challenges[challenge['name']]['hints']:
                         self._ctfd.delete_hint(hint)
+                    for tag in self._challenges[challenge['name']]['tags']:
+                        self._ctfd.delete_tag(tag)
                 else:
                     self._logger.info(f"Creating new challenge named {challenge['name']}")
                     data = { 'id': '', 'flags': [], 'hints': [] }
@@ -150,6 +156,10 @@ class CTFBuilder:
                     self._logger.debug(f"Posting hint to {challenge['name']} challenge: {hint}")
                     hint['challenge_id'] = self._challenges[challenge['name']]['id']
                     self._ctfd.post_hint(hint)
+                for tag in tags:
+                    self._logger.debug(f"Posting tag to {challenge['name']} challenge: {hint}")
+                    tag['challenge_id'] = self._challenges[challenge['name']]['id']
+                    self._ctfd.post_tag(tag)
 
 
     def _upload_files(self):

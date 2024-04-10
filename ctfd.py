@@ -20,6 +20,10 @@ class CTFd:
         return self._request(f'hints/{id}', 'DELETE')
 
 
+    def delete_tag(self, id):
+        return self._request(f'tags/{id}', 'DELETE')
+
+
     def get_challenge(self, id):
         return self._request(f'challenges/{id}')
 
@@ -38,6 +42,10 @@ class CTFd:
 
     def get_challenge_requirements(self, id):
         return self._request(f'challenges/{id}/requirements')
+
+
+    def get_challenge_tags(self, id):
+        return self._request(f'challenges/{id}/tags')
 
 
     def get_challenge_types(self):
@@ -64,6 +72,10 @@ class CTFd:
         return self._request('pages')
 
 
+    def get_tag_list(self):
+        return self._request('tags')
+
+
     def get_token_list(self):
         return self._request('tokens')
 
@@ -86,6 +98,10 @@ class CTFd:
 
     def post_config_list(self, json):
         return self._request('configs/fields', 'POST', json)
+
+
+    def post_tag(self, json):
+        return self._request(f'tags', 'POST', json)
 
 
     def post_file(self, files):

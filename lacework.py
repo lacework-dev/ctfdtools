@@ -4,6 +4,7 @@ import logging
 import os.path
 import requests
 import subprocess
+from datetime import datetime, timedelta
 from jinja2 import Template
 from os.path import isfile
 
@@ -58,8 +59,7 @@ class Lacework:
             return [] 
         return subaccounts
 
-
-    def api(self, path, method='GET', json=None):
+    def api(self, path, method='GET', json=None, paging=True):
         self._logger.debug(f'Making Lacework API call to {path} with {method} method.')
         headers = {
             "Authorization": f"Bearer {self._token}",
@@ -78,7 +78,7 @@ class Lacework:
         except:
             return {}
 
-        if results.get("paging", {}).get("urls", {}).get("nextPage"):
+        if results.get("paging", {}).get("urls", {}).get("nextPage") and paging:
             url = results.get("paging", {}).get("urls", {}).get("nextPage")
             additional_results = results
             while additional_results.get("paging", {}).get("urls", {}).get("nextPage"):
@@ -141,3 +141,29 @@ class Lacework:
         except:
             raise Exception('Failure to retrieve Lacework access token.')
         return account, token
+
+
+    def get_critical_host(self):
+        self._logger.debug('Retrieving hostname for vulnerability category')
+        path = '/api/v2/Vulnerabilities/Hosts/search'
+        days_back = 1
+        start = (datetime.now() - timedelta(days=days_back)).strftime("%Y-%m-%dT%H:%M:%SZ")
+        end = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+        vuln_json = {
+            "filters": [
+                {
+                    "field": "severity",
+                    "expression": "in",
+                    "values": ["Critical"]
+                }
+            ],
+            "timeFilter": {
+                "startTime": start,
+                "endTime": end
+            }
+        }
+        critical_hostname = None
+        vuln_search_results = self.api(path=path, method='POST', json=vuln_json, paging=False)
+        for vuln in vuln_search_results.get('data', [])[:1]:
+            critical_hostname = vuln.get('evalCtx', {}).get('hostname')
+        return critical_hostname

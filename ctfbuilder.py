@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import yaml
+import traceback
 from jinja2 import Template, DebugUndefined
 from os import listdir
 from os.path import isdir, isfile
@@ -217,6 +218,7 @@ class CTFBuilder:
                     if hasattr(ctf, 'parse_challenge'):
                         challenge = ctf.parse_challenge(challenge, self._config, self._lw)
                 except Exception as error:
+                    traceback.print_exc()
                     self._logger.warning(f"Failed parsing '{challenge['name']}' challenge in custom parse_challenge function: Error: {error}")
                 finally:
                     os.chdir(saved_dir)

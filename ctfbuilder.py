@@ -23,8 +23,9 @@ class CTFBuilder:
         self._pages = self._get_existing_pages()
 
 
-    def build_ctf(self, schema):
+    def build_ctf(self, schema, category='All'):
         self._schema = schema
+        self._category = category
         self._files = self._upload_files()
         self._build_pages()
         self._build_configuration()
@@ -179,7 +180,11 @@ class CTFBuilder:
     def _get_challenges(self):
         # Only use directories in the schema that start with a digit and underscore
         # ie: 1_getting to know you
-        categories = sorted([d for d in listdir(self._schema) if isdir(f'{self._schema}/{d}') and re.search('^\d{1,3}\_', d)])
+        if self._category != 'All':
+            dir_list = [self._category]
+        else:
+            dir_list = listdir(self._schema)
+        categories = sorted([d for d in dir_list if isdir(f'{self._schema}/{d}') and re.search('^\d{1,3}\_', d)])
         self._logger.debug(f'Retrieved the following categories from {self._schema}: {categories}')
         challenges = {}
         for category in categories:

@@ -37,6 +37,7 @@ def parse_args():
     parser.add_argument('-p', '--profile', default='default', help='Specify profile to use from lacework CLI configuration. Defaults to \'default\'.')
     parser.add_argument('-s', '--schema', default='ctf', help='Path to CTF schema directory. Defaults to \'ctf\'.')
     parser.add_argument('-a', '--answers', action='store_true', help='Print out challenge names and anwers/flags.')
+    parser.add_argument('-C', '--category', default='All', help='Specify a direcotry name within the schema to limit build to just that category. Defaults to All')
     return parser.parse_args()
 
 
@@ -67,6 +68,9 @@ def main():
         print(json.dumps(config))
         sys.exit(0)
 
+    if args.category != 'All':
+        if not isdir(f'{args.schema}/{args.category}'):
+            raise Exception('Directory {args.schema}/{args.category} is not a valid category directory')
 
     logger.debug(f"Using provided config {args.config}")
     config = json.loads(args.config.read())
@@ -77,7 +81,7 @@ def main():
     cb = CTFBuilder(ctfd, lw, config)
 
     # Build out the CTF using the above configuration
-    cb.build_ctf(args.schema)
+    cb.build_ctf(args.schema, args.category)
 
     if args.answers:
         print(cb.get_answers())

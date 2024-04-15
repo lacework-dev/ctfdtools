@@ -71,9 +71,6 @@ def main():
         print(json.dumps(config))
         sys.exit(0)
 
-    if args.category != 'All':
-        if not isdir(f'{args.schema}/{args.category}'):
-            raise Exception('Directory {args.schema}/{args.category} is not a valid category directory')
 
     logger.debug(f"Using provided config {args.config}")
     config = json.loads(args.config.read())
@@ -81,6 +78,9 @@ def main():
         config['schema'] = args.schema
     if not config.get('subaccount'):
         config['subaccount'] = config['account']
+    if args.category != 'All':
+        if not isdir(f"{config['schema']}/{args.category}"):
+            raise Exception(f"Directory {config['schema']}/{args.category} is not a valid category directory")
     lw = Lacework(config['profile'], config['subaccount'])
     ctfd = CTFd(config['ctfd_api_key'], config['ctfd_url'])
     cb = CTFBuilder(ctfd, lw, config)

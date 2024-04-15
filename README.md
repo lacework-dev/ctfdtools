@@ -5,8 +5,8 @@ Builds CTF based off prospect or customers data.  You can point the build script
 ## Setup environment  
 
 ```
-% git clone https://github.com/lacework-dev/dyn-lw-ctf  
-% cd dyn-lw-ctf/  
+% git clone https://github.com/lacework-dev/ctfdtools
+% cd ctfdtools/  
 % python3 -m venv .venv  
 % source .venv/bin/activate  
 % pip install -r requirements.txt  

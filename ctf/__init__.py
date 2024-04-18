@@ -3,7 +3,7 @@ from prompt_toolkit.shortcuts import checkboxlist_dialog
 from prompt_toolkit.shortcuts import input_dialog
 
 
-def build_config(config, lw):
+def build_config(config):
     config['ctfd_url'] = input_dialog(
         title='Enter CTFd URL',
         text='https://xxx.xxx.xxx.xxx:port').run()

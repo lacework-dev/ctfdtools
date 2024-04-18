@@ -11,7 +11,7 @@ from os.path import isfile
 
 class Lacework:
 
-    def __init__(self, profile, subaccount=None):
+    def __init__(self, profile='default', subaccount=None):
         self.profile = profile
         self._logger = logging.getLogger(__name__)
 
@@ -20,6 +20,14 @@ class Lacework:
             self.subaccount = subaccount
         else:
             self.subaccount = self.account
+        self._session = requests.Session()
+        self._base_url  = f'https://{self.account}.lacework.net'
+
+
+    def set_profile(self, profile):
+        self.profile = profile
+        self.account, self._token = self._get_access_token(profile)
+        self.subaccount = self.account
         self._session = requests.Session()
         self._base_url  = f'https://{self.account}.lacework.net'
 
@@ -41,6 +49,18 @@ class Lacework:
         for csp_account in csp_accounts:
             if csp_account['type'] == 'AwsCfg':
                 accounts.append({'name': csp_account['name'], 'account': csp_account['data']['awsAccountId']})
+        return accounts
+
+
+    def get_lw_accounts(self):
+        home = os.path.expanduser('~')
+        if not isfile(f'{home}/.lacework.toml'):
+            raise Exception('Lacework CLI configuration not found.')
+        config = configparser.ConfigParser()
+        config.read(home + "/.lacework.toml")
+        accounts = []
+        for profile in config.sections():
+            accounts.append([config[profile]['account'].strip('"'), profile])
         return accounts
 
 

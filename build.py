@@ -34,7 +34,6 @@ def parse_args():
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('-c', '--config', type=argparse.FileType('r'), help='Use specified CTF build configuration.')
     group.add_argument('-g', '--generate-config', action='store_true', help='Generate CTF build configuration from schema.')
-    parser.add_argument('-p', '--profile', default='default', help='Specify profile to use from lacework CLI configuration. Defaults to \'default\'.')
     parser.add_argument('-s', '--schema', help='Path to CTF schema directory.')
     parser.add_argument('-a', '--answers', action='store_true', help='Print out challenge names and anwers/flags.')
     parser.add_argument('-C', '--category', default='All', help='Specify a direcotry name within the schema to limit build to just that category. Defaults to All')
@@ -55,10 +54,8 @@ def main():
         if not args.schema:
             raise Exception('Must specify a --schema when generating a configuration.')
 
-        logger.debug(f'Build new configuration using the {args.profile} profile.')
-        lw = Lacework(args.profile)
         # At a minimum config must contain CTFd details and Lacework profile/account
-        config = {'ctfd_api_key': '', 'ctfd_url': '', 'schema': args.schema, 'profile': args.profile, 'account': lw.account}
+        config = { 'ctfd_api_key': '', 'ctfd_url': '', 'schema': args.schema }
         if isfile(f'{args.schema}/__init__.py'):
             logger.info(f'Loading module from schema: {args.schema}')
             ctf = importlib.machinery.SourceFileLoader('schema', f'{args.schema}/__init__.py').load_module()
@@ -66,7 +63,7 @@ def main():
             saved_dir = os.getcwd()
             os.chdir(f'{saved_dir}/{args.schema}')
             if hasattr(ctf, 'build_config'):
-                config = ctf.build_config(config, lw)
+                config = ctf.build_config(config)
             os.chdir(saved_dir)
         print(json.dumps(config))
         sys.exit(0)

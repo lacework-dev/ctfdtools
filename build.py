@@ -26,14 +26,14 @@ logger.addHandler(handler)
 
 def parse_args():
     logger.debug('Parsing command line arguments')
-    parser = argparse.ArgumentParser(description=f'Create a prospect/customer Lacework CTF in CTFd.')
+    parser = argparse.ArgumentParser(description=f'A tool for working with CTFd.')
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument('-c', '--config', type=argparse.FileType('r'), help='Use specified CTF build configuration.')
     group.add_argument('-g', '--generate-config', action='store_true', help='Generate CTF build configuration from schema.')
     parser.add_argument('-s', '--schema', help='Path to CTF schema directory.')
+    group.add_argument('-c', '--config', type=argparse.FileType('r'), help='Use specified CTF build configuration.')
     parser.add_argument('-b', '--build', action='store_true', help='Use specified build configuration to build CTF')
     parser.add_argument('-a', '--answers', action='store_true', help='Use specified build configuration and pull latest flags from CTFd instance.')
-    parser.add_argument('-C', '--category', default='All', help='Specify a directory name (or names in a comma separated list) within the schema to limit build to just that category. Defaults to All')
+    parser.add_argument('-C', '--category', help='Specify a directory name (or names in a comma separated list) within the schema to limit build to just that category. Defaults to All')
     return parser.parse_args()
 
 
@@ -65,6 +65,9 @@ def main():
         print(json.dumps(config))
         sys.exit(0)
 
+    if not args.build and not args.answers:
+        print('Specify one or more of -b/--build or -a/--answer arguments to take further action.')
+        sys.exit(0)
 
     logger.debug(f"Using provided config {args.config}")
     config = json.loads(args.config.read())
@@ -72,30 +75,19 @@ def main():
         config['schema'] = args.schema
     if not config.get('subaccount'):
         config['subaccount'] = config['account']
-    categories = ['All']
     ctfd = CTFd(config['ctfd_api_key'], config['ctfd_url'])
     cb = CTFBuilder(ctfd, config)
 
     if args.build:
-        if args.category != 'All':
-            try:
-                categories = args.category.split(',')
-            except:
-                raise Exception(f'Invalid category specification "{args.category}", must be comma separated list')
-            for category in categories:
-                bad_categories = []
-                if not isdir(f"{config['schema']}/{category}"):
-                    bad_categories.append(f"{config['schema']}/{category}")
-            if len(bad_categories) > 0:
-                raise Exception(f"The catory|ies] {bad_categories} is|are not valid")
         # Build out the CTF using the above configuration
-        cb.build_ctf(config['schema'], categories)
+        if args.category:
+            cb.build_ctf(config['schema'], args.category)
+        else:
+            cb.build_ctf(config['schema'])
 
     if args.answers:
         print(cb.get_answers())
 
 
-    if not args.build and not args.answers:
-        print('Specify one or more of -b/--build or -a/--answer arguments to take further action.')
 if __name__ == "__main__":
     main()

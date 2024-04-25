@@ -53,34 +53,22 @@ challenges:
 
 ## Global built in variables  
 
-The following variables can be used via Jinja templating.  i.e. `{{ CONFIG_AWS_USER }}`  
-```
-CONFIG_AWS_USER  
-CONFIG_AWS_PRINCIPAL_ID  
-CONFIG_ACCOUNT  
-CONFIG_SUBACCOUNT  
-CONFIG_AWS_ACCOUNTS  
-```
+Any variable passed in via a config.json will be made available in all YAML files. The variable will be uppercased and then prefixed with CONFIG_  Examples below.
+
+`aws_account` becomes `CONFIG_AWS_ACCOUNT`
+`account` becomes `CONFIG_ACCOUNT`
+`subaccount` becomes `CONFIG_SUBACCOUNT`
 
 ## parse_challenge function  
 
 To make the challenge descriptions and flags dynamic you can add a `parse_challenge` function into a `__init__.py` file in the category directory.  Each challenge for that category will be passed through this function. Example function signature below.  
 
 ```
-def parse_challenge(challenge, config, lw):  
-    # modify challenge details  
-    return challenge  
-```  
-
-Here is another example using the passed in Lacework `lw` object to run LQL and dynamically add in flags.  
-
-```
-def parse_challenge(challenge, config, lw):  
-    if challenge['name'] == 'weakest link':  
-        iam_write_idents = lw.run_lw_query('ciem_iam_write.yml')  
-        challenge['flags'] = []  
-        for result in iam_write_idents:  
-            flag = {'type': 'static', 'data': 'case_insensitive', 'content': result['PRINCIPAL_ID']}  
-            challenge['flags'].append(flag) 
-    return challenge  
+def parse_challenge(challenge, config):
+    # modify challenge details
+    # add flag(s) to challenge
+    challenge['flags'] = []
+    flag = { 'type': 'static', 'data': 'case_insensitive', 'content': 'flag goes here' }
+    challenge['flags'].append(flag)
+    return challenge
 ```

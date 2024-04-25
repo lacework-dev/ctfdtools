@@ -95,5 +95,7 @@ def main():
         print(cb.get_answers())
 
 
+    if not args.build and not args.answers:
+        print('Specify one or more of -b/--build or -a/--answer arguments to take further action.')
 if __name__ == "__main__":
     main()

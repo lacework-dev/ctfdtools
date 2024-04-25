@@ -12,10 +12,9 @@ from os.path import isdir, isfile
 
 class CTFBuilder:
 
-    def __init__(self, ctfd, lw, config=None):
+    def __init__(self, ctfd, config=None):
         self._config = config 
         self._ctfd = ctfd 
-        self._lw = lw 
         self._logger = logging.getLogger(__name__)
         self._schema = None
         self._files = None
@@ -222,7 +221,7 @@ class CTFBuilder:
                     os.chdir(f'{saved_dir}/{self._schema}')
                     ctf = importlib.machinery.SourceFileLoader(category, f'{category}/__init__.py').load_module()
                     if hasattr(ctf, 'parse_challenge'):
-                        challenge = ctf.parse_challenge(challenge, self._config, self._lw)
+                        challenge = ctf.parse_challenge(challenge, self._config)
                 except Exception as error:
                     traceback.print_exc()
                     self._logger.warning(f"Failed parsing '{challenge['name']}' challenge in custom parse_challenge function: Error: {error}")

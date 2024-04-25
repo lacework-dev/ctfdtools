@@ -1,6 +1,6 @@
-# Dyanmic Lacework CTF  
+# CTFd tools
 
-Builds CTF based off prospect or customers data.  You can point the build script at a profile from your Lacework CLI install and it will pull data from that tenant, give you some choices, and then build the CTF on the CTFd platform.  
+Tools to aid in the creation and management of CTFd CTFs.
 
 ## Setup environment  
 
@@ -14,12 +14,30 @@ Builds CTF based off prospect or customers data.  You can point the build script
 
 ## [Setup CTF structure](ctf/README.md)
 
+## Generate a build configuration
+```
+# save output as config.json
+% ./build.py -g -s ctf
+```
 
-## Build script  
+## Build CTF
+```
+# use generated configuration to build CTF
+% ./build.py -c config.json -b
+```
+
+## Print flags from live CTF
+```
+# this can be combined with the build flag
+% ./build.py -c config.json -a
+```
+
+
+## Build script help
 
 ```
 % ./build.py -h
-usage: build.py [-h] (-c CONFIG | -g) [-p PROFILE] [-s SCHEMA] [-a]
+usage: build.py [-h] (-c CONFIG | -g) [-s SCHEMA] [-b] [-a] [-C CATEGORY]
 
 Create a prospect/customer Lacework CTF in CTFd.
 
@@ -29,9 +47,11 @@ options:
                         Use specified CTF build configuration.
   -g, --generate-config
                         Generate CTF build configuration from schema.
-  -p PROFILE, --profile PROFILE
-                        Specify profile to use from lacework CLI configuration. Defaults to 'default'.
   -s SCHEMA, --schema SCHEMA
-                        Path to CTF schema directory. Defaults to 'ctf'.
-  -a, --answers         Print out challenge names and anwers/flags.
+                        Path to CTF schema directory.
+  -b, --build           Use specified build configuration to build CTF
+  -a, --answers         Use specified build configuration and pull latest flags from CTFd instance.
+  -C CATEGORY, --category CATEGORY
+                        Specify a directory name (or names in a comma separated list) within the schema to limit build to just
+                        that category. Defaults to All
 ```

@@ -1,6 +1,6 @@
 # import libraries for solvers
 
-def parse_challenge(challenge, config):
+def parse_challenge(schema, challenge, config):
     '''
         This function will be ran on any challenge in this category at build time.
 

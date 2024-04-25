@@ -61,10 +61,10 @@ Any variable passed in via a config.json will be made available in all YAML file
 
 ## parse_challenge function  
 
-To make the challenge descriptions and flags dynamic you can add a `parse_challenge` function into a `__init__.py` file in the category directory.  Each challenge for that category will be passed through this function. Example function signature below.  
+To make the challenge descriptions and flags dynamic you can add a `parse_challenge` function into a `__init__.py` file in the category directory.  Each challenge for that category will be passed through this function. Example function signature below. schema argument is an import of schema as a module. challenge argument is the JSON of the challenge object. config is the passed in config.json
 
 ```
-def parse_challenge(challenge, config):
+def parse_challenge(schema, challenge, config):
     # modify challenge details
     # add flag(s) to challenge
     challenge['flags'] = []

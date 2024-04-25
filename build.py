@@ -8,11 +8,7 @@ import os
 import sys
 from ctfbuilder import CTFBuilder
 from ctfd import CTFd
-from lacework import Lacework
 from os.path import isdir, isfile
-from prompt_toolkit.shortcuts import radiolist_dialog
-from prompt_toolkit.shortcuts import checkboxlist_dialog
-from prompt_toolkit.shortcuts import input_dialog
 
 
 # Uncomment the following line for debug information on 3rd party modules
@@ -77,9 +73,8 @@ def main():
     if not config.get('subaccount'):
         config['subaccount'] = config['account']
     categories = ['All']
-    lw = Lacework(config['profile'], config['subaccount'])
     ctfd = CTFd(config['ctfd_api_key'], config['ctfd_url'])
-    cb = CTFBuilder(ctfd, lw, config)
+    cb = CTFBuilder(ctfd, config)
 
     if args.build:
         if args.category != 'All':

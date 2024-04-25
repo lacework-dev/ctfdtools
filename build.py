@@ -51,7 +51,7 @@ def main():
         if not args.schema:
             raise Exception('Must specify a --schema when generating a configuration.')
 
-        # At a minimum config must contain CTFd details and Lacework profile/account
+        # At a minimum config must contain CTFd details and schema
         config = { 'ctfd_api_key': '', 'ctfd_url': '', 'schema': args.schema }
         if isfile(f'{args.schema}/__init__.py'):
             logger.info(f'Loading module from schema: {args.schema}')

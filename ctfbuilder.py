@@ -219,9 +219,13 @@ class CTFBuilder:
                 try:
                     # Look for a custom parse_challenge function in schema/1_category/__init__.py for each category
                     os.chdir(f'{saved_dir}/{self._schema}')
+                    # everything initialized in the schema module will get passed into parse_challenge
+                    schema = importlib.machinery.SourceFileLoader('schema', '__init__.py').load_module()
+                    if hasattr(schema, 'init_schema'):
+                        schema.init_schema(self._config)
                     ctf = importlib.machinery.SourceFileLoader(category, f'{category}/__init__.py').load_module()
                     if hasattr(ctf, 'parse_challenge'):
-                        challenge = ctf.parse_challenge(challenge, self._config)
+                        challenge = ctf.parse_challenge(schema, challenge, self._config)
                 except Exception as error:
                     traceback.print_exc()
                     self._logger.warning(f"Failed parsing '{challenge['name']}' challenge in custom parse_challenge function: Error: {error}")

@@ -37,21 +37,23 @@ Tools to aid in the creation and management of CTFd CTFs.
 
 ```
 % ./build.py -h
-usage: build.py [-h] (-c CONFIG | -g) [-s SCHEMA] [-b] [-a] [-C CATEGORY]
+usage: build.py [-h] [-g] [-s SCHEMA] [-c CONFIG] [-b] [-a] [-C CATEGORY]
 
-Create a prospect/customer Lacework CTF in CTFd.
+A tool for working with CTFd.
 
 options:
   -h, --help            show this help message and exit
-  -c CONFIG, --config CONFIG
-                        Use specified CTF build configuration.
   -g, --generate-config
                         Generate CTF build configuration from schema.
   -s SCHEMA, --schema SCHEMA
                         Path to CTF schema directory.
+  -c CONFIG, --config CONFIG
+                        Use specified CTF build configuration.
   -b, --build           Use specified build configuration to build CTF
-  -a, --answers         Use specified build configuration and pull latest flags from CTFd instance.
+  -a, --answers         Use specified build configuration and pull latest flags from
+                        CTFd instance.
   -C CATEGORY, --category CATEGORY
-                        Specify a directory name (or names in a comma separated list) within the schema to limit build to just
-                        that category. Defaults to All
+                        Specify a directory name (or names in a comma separated list)
+                        within the schema to limit build to just that category. Defaults
+                        to All
 ```

@@ -1,0 +1,13 @@
+__pycache__
+*.pyc
+*.swp
+config
+config.json
+ctfconfig.json
+creds
+.venv
+venv
+.DS_Store
+.idea
+CTFd
+ctfs

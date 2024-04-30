@@ -1,0 +1,11 @@
+---
+config:
+  ctf_theme: core-beta
+  user_mode:  users
+  account_visibility: private
+  score_visibility: private
+  registration_visibility: private
+  registration_code: private by design
+  paused: 1
+  ctf_name: "{{ CONFIG_ACCOUNT.title() }} CTF"
+  ctf_description: "Capture the Flag event hosted by Lacework for {{ CONFIG_ACCOUNT }} on the {{ CONFIG_SUBACCOUNT }} subaccount. Scope includes the following AWS accounts: {{ CONFIG_AWS_ACCOUNTS }}"

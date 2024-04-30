@@ -1,0 +1,26 @@
+---
+challenges:
+- name: who dis?
+  value: 100
+  type: standard 
+  state: visible 
+  connection_info: 'https://steamuserimages-a.akamaihd.net/ugc/849343239164067818/9469922B32BF8FE266FE4F783B7327C8091BA75A/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=true'
+  description: |
+    We found the following Critical/High risk user with an active access key. What is the principal ID for this user?
+        
+    **{{ CONFIG_AWS_USER }}**
+  flags:
+  - type: static
+    data: case_insensitive 
+    content: '{{ CONFIG_AWS_PRINCIPAL_ID }}'
+
+- name: oh really?
+  value: 100
+  type: standard
+  state: visible 
+  connection_info: 'https://memecentral.org/wp-content/uploads/2019/08/really-seriously-meme.jpg'
+  description: |
+    Do you believe the user account **{{ CONFIG_AWS_USER }}** is problematic?  Why or why not?
+  flags:
+  - type: regex
+    content: .*

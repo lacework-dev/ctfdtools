@@ -30,7 +30,6 @@ class CTFBuilder:
             saved_dir = os.getcwd()
             os.chdir(f"{saved_dir}/{self._config['schema']}")
             ctf = importlib.machinery.SourceFileLoader('schema', f'__init__.py').load_module()
-            # Change working directory so that loaded function can access correct lql directory
             if hasattr(ctf, 'build_config'):
                 config = ctf.build_config(config)
             os.chdir(saved_dir)
@@ -126,14 +125,12 @@ class CTFBuilder:
 
     def _build_configuration(self):
         self._logger.info(f'Setting initial configuration from {self._schema}/config.yml')
-        # Set initial configuration items in CTFd
         with open(f'{self._schema}/config.yml', 'r') as file:
             ctfd_config = yaml.safe_load(file)['config']
         ctfd_config = self._replace_vars(ctfd_config)
         self._ctfd.patch_config_list(ctfd_config)
 
     def _build_challenges(self):
-        # Build challenge board
         self._logger.info('Building CTF categories and challenges.')
         challenges = self._get_challenges()
         for category in challenges.keys():

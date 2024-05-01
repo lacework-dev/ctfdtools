@@ -50,18 +50,8 @@ def main():
     if args.generate_config:
         if not args.schema:
             raise Exception('Must specify a --schema when generating a configuration.')
-
-        # At a minimum config must contain CTFd details and schema
-        config = {'ctfd_api_key': '', 'ctfd_url': '', 'schema': args.schema}
-        if isfile(f'{args.schema}/__init__.py'):
-            logger.info(f'Loading module from schema: {args.schema}')
-            saved_dir = os.getcwd()
-            os.chdir(f'{saved_dir}/{args.schema}')
-            ctf = importlib.machinery.SourceFileLoader('schema', f'__init__.py').load_module()
-            # Change working directory so that loaded function can access correct lql directory
-            if hasattr(ctf, 'build_config'):
-                config = ctf.build_config(config)
-            os.chdir(saved_dir)
+        cb = CTFBuilder(None, {'schema': args.schema})
+        config = cb.generate_config()
         print(json.dumps(config))
         sys.exit(0)
 

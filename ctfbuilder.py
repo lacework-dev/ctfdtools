@@ -12,18 +12,34 @@ from os.path import isdir, isfile
 
 class CTFBuilder:
 
-    def __init__(self, ctfd, config=None):
+    def __init__(self, ctfd=None, config=None):
         self._config = config
         self._ctfd = ctfd
         self._logger = logging.getLogger(__name__)
         self._schema = None
         self._files = None
-        self._challenges = self._get_existing_challenges()
-        self._pages = self._get_existing_pages()
+        self._challenges = {}
+        self._pages = {}
         self._category = None
+
+    def generate_config(self):
+        # At a minimum config must contain CTFd details and schema
+        config = {'ctfd_api_key': '', 'ctfd_url': '', 'schema': self._config['schema']}
+        if isfile(f"{self._config['schema']}/__init__.py"):
+            self._logger.info(f"Loading module from schema: {self._config['schema']}")
+            saved_dir = os.getcwd()
+            os.chdir(f"{saved_dir}/{self._config['schema']}")
+            ctf = importlib.machinery.SourceFileLoader('schema', f'__init__.py').load_module()
+            # Change working directory so that loaded function can access correct lql directory
+            if hasattr(ctf, 'build_config'):
+                config = ctf.build_config(config)
+            os.chdir(saved_dir)
+        return config
 
     def build_ctf(self, schema, category=['All']):
         self._schema = schema
+        self._challenges = self._get_existing_challenges()
+        self._pages = self._get_existing_pages()
         self._category = category
         if category != ['All']:
             try:

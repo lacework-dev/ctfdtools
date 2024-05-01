@@ -12,18 +12,20 @@ from os.path import isdir, isfile
 
 class CTFBuilder:
 
-    def __init__(self, ctfd, config=None):
+    def __init__(self, ctfd=None, config=None):
         self._config = config
         self._ctfd = ctfd
         self._logger = logging.getLogger(__name__)
         self._schema = None
         self._files = None
-        self._challenges = self._get_existing_challenges()
-        self._pages = self._get_existing_pages()
+        self._challenges = {}
+        self._pages = {}
         self._category = None
 
     def build_ctf(self, schema, category=['All']):
         self._schema = schema
+        self._challenges = self._get_existing_challenges()
+        self._pages = self._get_existing_pages()
         self._category = category
         if category != ['All']:
             try:

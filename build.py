@@ -69,7 +69,6 @@ def main():
     cb = CTFBuilder(ctfd, config)
 
     if args.build:
-        # Build out the CTF using the above configuration
         if args.category:
             cb.build_ctf(config['schema'], args.category)
         else:

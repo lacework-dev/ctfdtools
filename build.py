@@ -63,8 +63,6 @@ def main():
     config = json.loads(args.config.read())
     if args.schema:
         config['schema'] = args.schema
-    if not config.get('subaccount'):
-        config['subaccount'] = config['account']
     ctfd = CTFd(config['ctfd_api_key'], config['ctfd_url'])
     cb = CTFBuilder(ctfd, config)
 

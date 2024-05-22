@@ -230,7 +230,7 @@ def parse_challenge(schema, challenge, config):
     """
 
     #############################
-    #     solvers go here       # 
+    #     solvers go here       #
     #############################
 
     return challenge
@@ -287,6 +287,36 @@ def parse_challenge(schema, challenge, config):
             f.write('---\n')
             f.write(data)
 
+    def _export_schema(self):
+            self._logger.debug(f'Saving export to directory: {self._schema}')
+            os.mkdir(self._schema)
+            os.mkdir(f'{self._schema}/files')
+            with open(f'{self._schema}/__init__.py', 'w') as f:
+                data = '''
+    from prompt_toolkit.shortcuts import radiolist_dialog
+    from prompt_toolkit.shortcuts import checkboxlist_dialog
+    from prompt_toolkit.shortcuts import input_dialog
+
+
+    def init_schema(config):
+        # schema is imported as a module then passed to each categories parse_challenge function
+        # this function is called first.
+        pass
+
+
+    def build_config(config):
+        config['ctfd_url'] = input_dialog(
+            title='Enter CTFd URL',
+            text='https://xxx.xxx.xxx.xxx:port').run()
+        config['ctfd_api_key'] = input_dialog(
+            password=True,
+            title='Enter CTFd API Key',
+            text='Provide API key from a CTFd admin account').run()
+        # Add additional values to config here
+        return config
+    '''
+                f.write(data)
+
     def _get_ctfd_challenges(self):
         ctf_challenges = {}
         challenges = self._ctfd.get_challenge_list()
@@ -303,36 +333,6 @@ def parse_challenge(schema, challenge, config):
                 data['tags'].append(tag['id'])
             ctf_challenges[challenge['name']] = data
         return ctf_challenges
-
-    def _export_schema(self):
-        self._logger.debug(f'Saving export to directory: {self._schema}')
-        os.mkdir(self._schema)
-        os.mkdir(f'{self._schema}/files')
-        with open(f'{self._schema}/__init__.py', 'w') as f:
-            data = '''
-from prompt_toolkit.shortcuts import radiolist_dialog
-from prompt_toolkit.shortcuts import checkboxlist_dialog
-from prompt_toolkit.shortcuts import input_dialog
-
-
-def init_schema(config):
-    # schema is imported as a module then passed to each categories parse_challenge function
-    # this function is called first.
-    pass
-
-
-def build_config(config):
-    config['ctfd_url'] = input_dialog(
-        title='Enter CTFd URL',
-        text='https://xxx.xxx.xxx.xxx:port').run()
-    config['ctfd_api_key'] = input_dialog(
-        password=True,
-        title='Enter CTFd API Key',
-        text='Provide API key from a CTFd admin account').run()
-    # Add additional values to config here
-    return config
-'''
-            f.write(data)
 
     def _get_ctfd_pages(self):
         ctf_pages = {}

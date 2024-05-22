@@ -132,7 +132,7 @@ class CTFBuilder:
 
     def _build_challenges(self):
         self._logger.info('Building CTF categories and challenges.')
-        challenges = self._get_challenges()
+        challenges = self._parse_challenges(self._get_challenges())
         for category in challenges.keys():
             for challenge in challenges[category]:
                 self._logger.debug(f"Parsing {challenge['name']} challenge: {challenge}")
@@ -145,12 +145,7 @@ class CTFBuilder:
                 if len(hints) > 0: del challenge['hints']
                 tags = challenge.get('tags', [])
                 if len(tags) > 0: del challenge['tags']
-                # Replace challenge names listed in requirements with their id
-                if challenge.get('requirements', {}).get('prerequisites'):
-                    prerequisites = []
-                    for requirement in challenge['requirements']['prerequisites']:
-                        prerequisites.append(self._challenges[requirement]['id'])
-                    challenge['requirements']['prerequisites'] = prerequisites
+                if challenge.get('next_id'): del challenge['next_id']
                 if challenge['name'] in self._challenges:
                     # Update existing challenge instead of creating new
                     self._logger.info(f"Updating existing challenge named {challenge['name']}")
@@ -179,6 +174,29 @@ class CTFBuilder:
                     tag['challenge_id'] = self._challenges[challenge['name']]['id']
                     self._ctfd.post_tag(tag)
 
+        # now that challenges have been submitted and we have IDs, read yaml back in and add the
+        # prerequisite requirements IDs and next challenge ID in place of challenge names
+        challenges = self._get_challenges()
+        for category in challenges.keys():
+            for challenge in challenges[category]:
+                self._logger.debug(f"Checking requirements and next_id for {challenge['name']} challenge: {challenge}")
+                update_challenge = {}
+                # Replace challenge names listed next_id with their id
+                if challenge.get('next_id'):
+                    self._logger.debug('Updating next_id with challenge id')
+                    update_challenge['next_id'] = self._challenges[challenge['next_id']]['id']
+                if challenge.get('requirements', {}).get('prerequisites'):
+                    self._logger.debug('Updating requirements with challenge ids')
+                    update_challenge['requirements'] = {}
+                    prerequisites = []
+                    for requirement in challenge['requirements']['prerequisites']:
+                        self._logger.debug(f"Adding challenge id {self._challenges[requirement]['id']}")
+                        prerequisites.append(self._challenges[requirement]['id'])
+                    update_challenge['requirements']['prerequisites'] = prerequisites
+                if len(update_challenge) > 0:
+                    self._logger.debug(f"Posting {challenge['name']} challenge: {update_challenge}")
+                    self._ctfd.patch_challenge(update_challenge, self._challenges[challenge['name']]['id'])
+
     def _upload_files(self):
         ctf_files = []
         if not isdir(f'{self._schema}/files'):
@@ -205,7 +223,6 @@ class CTFBuilder:
             with open(f'{self._schema}/{category}/challenges.yml', 'r') as file:
                 self._logger.debug(f'Loading challenges from {self._schema}/{category}/challenges.yml')
                 challenges[category] = yaml.safe_load(file)['challenges']
-        challenges = self._parse_challenges(challenges)
         return challenges
 
     def _replace_vars(self, data):

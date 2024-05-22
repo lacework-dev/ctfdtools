@@ -37,7 +37,7 @@ Tools to aid in the creation and management of CTFd CTFs.
 
 ```
 % ./build.py -h
-usage: build.py [-h] [-g] [-s SCHEMA] [-c CONFIG] [-b] [-a] [-C CATEGORY]
+usage: build.py [-h] [-g] [-s SCHEMA] [-c CONFIG] [-b] [-a] [-e] [-C CATEGORY]
 
 A tool for working with CTFd.
 
@@ -48,10 +48,10 @@ options:
   -s SCHEMA, --schema SCHEMA
                         Path to CTF schema directory.
   -c CONFIG, --config CONFIG
-                        Use specified CTF build configuration.
-  -b, --build           Use specified build configuration to build CTF
-  -a, --answers         Use specified build configuration and pull latest flags from
-                        CTFd instance.
+                        Use specified configuration file.
+  -b, --build           Use configuration to build CTF
+  -a, --answers         Use configuration to pull latest flags from CTFd instance.
+  -e, --export          Use configuration to export running CTFd instance to schema.
   -C CATEGORY, --category CATEGORY
                         Specify a directory name (or names in a comma separated list)
                         within the schema to limit build to just that category. Defaults

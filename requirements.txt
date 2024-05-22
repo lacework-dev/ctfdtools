@@ -5,6 +5,6 @@ Jinja2==3.1.4
 MarkupSafe==2.1.5
 prompt-toolkit==3.0.43
 PyYAML==6.0.1
-requests==2.31.0
+requests==2.32.2
 urllib3==2.2.1
 wcwidth==0.2.13

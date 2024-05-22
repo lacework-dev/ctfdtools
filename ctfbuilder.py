@@ -22,7 +22,9 @@ class CTFBuilder:
         self._pages = {}
         self._category = None
 
-    def build_ctf(self, schema, category=['All']):
+    def build_ctf(self, schema, category=None):
+        if category is None:
+            category = ['All']
         self._schema = schema
         self._challenges = self._get_existing_challenges()
         self._pages = self._get_existing_pages()
@@ -250,11 +252,11 @@ class CTFBuilder:
         return parsed
 
     def _replace_vars(self, data):
-        '''
+        """
         This function replaces the templating variables throughout the YAML
         Any file that exists in schema/files can be referenced {{ Filename.png }}
         Any config variable can be referenced {{ CONFIG_VAR_NAME }}
-        '''
+        """
         for file in self._files:
             if data.get('ctf_logo'):
                 data = json.loads(

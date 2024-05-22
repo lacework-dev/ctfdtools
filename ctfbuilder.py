@@ -32,7 +32,7 @@ class CTFBuilder:
         if category != ['All']:
             try:
                 self._category = self._category.split(',')
-            except:
+            except AttributeError:
                 raise Exception(f'Invalid category specification "{self._category}", must be comma separated list')
             bad_categories = []
             for category in self._category:
@@ -86,7 +86,8 @@ class CTFBuilder:
             answers = f"{answers}\n        category: {challenge['category']}"
             answers = f"{answers}\n        flags:"
             flags = self._ctfd.get_challenge_flags(challenge['id'])['data']
-            for flag in flags: answers = f"{answers} {flag['content']},"
+            for flag in flags:
+                answers = f"{answers} {flag['content']},"
             answers = f'{answers[:-1]}\n'
         return answers
 
@@ -99,14 +100,18 @@ class CTFBuilder:
                 challenge['category'] = category.split('_')[1]
                 # Check for flags, move to variable for separate submission
                 flags = challenge.get('flags', [])
-                if len(flags) > 0: del challenge['flags']
+                if len(flags) > 0:
+                    del challenge['flags']
                 # Check for hints, move to variable for separate submission
                 hints = challenge.get('hints', [])
-                if len(hints) > 0: del challenge['hints']
+                if len(hints) > 0:
+                    del challenge['hints']
                 # Check for tags, move to variable for separate submission
                 tags = challenge.get('tags', [])
-                if len(tags) > 0: del challenge['tags']
-                if challenge.get('next_id'): del challenge['next_id']
+                if len(tags) > 0:
+                    del challenge['tags']
+                if challenge.get('next_id'):
+                    del challenge['next_id']
                 if challenge['name'] in self._challenges:
                     # Update existing challenge instead of creating new
                     self._logger.info(f"Updating challenge named {challenge['name']}")
@@ -138,7 +143,7 @@ class CTFBuilder:
                     tag['challenge_id'] = self._challenges[challenge['name']]['id']
                     self._ctfd.post_tag(tag)
 
-        # now that challenges have been submitted and we have IDs, read yaml back in and add the
+        # now that challenges have been submitted, and we have IDs, read yaml back in and add the
         # prerequisite requirements IDs and next challenge ID in place of challenge names
         challenges = self._get_challenges()
         for category in challenges.keys():
@@ -205,11 +210,14 @@ class CTFBuilder:
         for challenge in challenges['data']:
             data = {'id': challenge['id'], 'flags': [], 'hints': [], 'tags': []}
             flags = self._ctfd.get_challenge_flags(challenge['id'])['data']
-            for flag in flags: data['flags'].append(flag['id'])
+            for flag in flags:
+                data['flags'].append(flag['id'])
             hints = self._ctfd.get_challenge_hints(challenge['id'])['data']
-            for hint in hints: data['hints'].append(hint['id'])
+            for hint in hints:
+                data['hints'].append(hint['id'])
             tags = self._ctfd.get_challenge_tags(challenge['id'])['data']
-            for tag in tags: data['tags'].append(tag['id'])
+            for tag in tags:
+                data['tags'].append(tag['id'])
             ctf_challenges[challenge['name']] = data
         return ctf_challenges
 

@@ -24,14 +24,22 @@ Tools to aid in the creation and management of CTFd CTFs.
 ```
 # use generated configuration to build CTF
 % ./build.py -c config.json -b
+
+# schema passed in from config will be overridden if specified with the -s/--schema flag
+% ./build.py -c config.json -b -s ctfschema
 ```
 
 ## Print flags from live CTF
 ```
-# this can be combined with the build flag
 % ./build.py -c config.json -a
 ```
 
+## Create schema from running CTFd instance
+```
+# the -s/--schema flag is used as the output directory for generated schema
+# schema directory cannot exist
+% ./build.py -c config.json -e -s ctfschema
+```
 
 ## Build script help
 

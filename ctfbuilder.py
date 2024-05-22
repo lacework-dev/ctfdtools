@@ -45,12 +45,12 @@ class CTFBuilder:
                 self._category = self._category.split(',')
             except:
                 raise Exception(f'Invalid category specification "{self._category}", must be comma separated list')
+            bad_categories = []
             for category in self._category:
-                bad_categories = []
                 if not isdir(f"{self._config['schema']}/{category}"):
                     bad_categories.append(f"{self._config['schema']}/{category}")
             if len(bad_categories) > 0:
-                raise Exception(f"The catory|ies] {bad_categories} is|are not valid")
+                raise Exception(f"One or more category is not valid")
         self._files = self._upload_files()
         self._build_pages()
         self._build_configuration()

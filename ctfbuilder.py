@@ -246,16 +246,20 @@ def parse_challenge(schema, challenge, config):
                     item['value'] = '{{ ' + item['value'].split('/')[1] + ' }}'
                 export_config['config'][item['key']] = item['value']
         del export_config['config']['ctf_version']
-        del export_config['config']['manual_verification_alembic_version']
         del export_config['config']['next_update_check']
-        del export_config['config']['services_alembic_version']
-        if export_config['config']['dynamic_challenges_alembic_version']:
+        if export_config['config'].get('manual_verification_alembic_version'):
+            del export_config['config']['manual_verification_alembic_version']
+        if export_config['config'].get('services_alembic_version'):
+            del export_config['config']['services_alembic_version']
+        if export_config['config'].get('dynamic_challenges_alembic_version'):
             del export_config['config']['dynamic_challenges_alembic_version']
-        if export_config['config']['webhooks_alembic_version']:
+        if export_config['config'].get('code_challenges_alembic_version'):
+            del export_config['config']['code_challenges_alembic_version']
+        if export_config['config'].get('webhooks_alembic_version'):
             del export_config['config']['webhooks_alembic_version']
-        if export_config['config']['webhooks_secret']:
+        if export_config['config'].get('webhooks_secret'):
             del export_config['config']['webhooks_secret']
-        if export_config.get('multiple_choice_alembic_version'):
+        if export_config['config'].get('multiple_choice_alembic_version'):
             del export_config['config']['multiple_choice_alembic_version']
         with open(f'{self._schema}/config.yml', 'w') as f:
             data = yaml.dump(export_config)
@@ -293,28 +297,28 @@ def parse_challenge(schema, challenge, config):
             os.mkdir(f'{self._schema}/files')
             with open(f'{self._schema}/__init__.py', 'w') as f:
                 data = '''
-    from prompt_toolkit.shortcuts import radiolist_dialog
-    from prompt_toolkit.shortcuts import checkboxlist_dialog
-    from prompt_toolkit.shortcuts import input_dialog
+from prompt_toolkit.shortcuts import radiolist_dialog
+from prompt_toolkit.shortcuts import checkboxlist_dialog
+from prompt_toolkit.shortcuts import input_dialog
 
 
-    def init_schema(config):
-        # schema is imported as a module then passed to each categories parse_challenge function
-        # this function is called first.
-        pass
+def init_schema(config):
+    # schema is imported as a module then passed to each categories parse_challenge function
+    # this function is called first.
+    pass
 
 
-    def build_config(config):
-        config['ctfd_url'] = input_dialog(
-            title='Enter CTFd URL',
-            text='https://xxx.xxx.xxx.xxx:port').run()
-        config['ctfd_api_key'] = input_dialog(
-            password=True,
-            title='Enter CTFd API Key',
-            text='Provide API key from a CTFd admin account').run()
-        # Add additional values to config here
-        return config
-    '''
+def build_config(config):
+    config['ctfd_url'] = input_dialog(
+        title='Enter CTFd URL',
+        text='https://xxx.xxx.xxx.xxx:port').run()
+    config['ctfd_api_key'] = input_dialog(
+        password=True,
+        title='Enter CTFd API Key',
+        text='Provide API key from a CTFd admin account').run()
+    # Add additional values to config here
+    return config
+'''
                 f.write(data)
 
     def _get_ctfd_challenges(self):
@@ -429,6 +433,8 @@ def parse_challenge(schema, challenge, config):
                     del challenge['tags']
                 if challenge.get('next_id'):
                     del challenge['next_id']
+                if challenge.get('requirements'):
+                    del challenge['requirements']
                 if challenge['name'] in self._challenges:
                     # Update existing challenge instead of creating new
                     self._logger.info(f"Updating challenge named {challenge['name']}")
@@ -445,6 +451,7 @@ def parse_challenge(schema, challenge, config):
                         self._ctfd.delete_tag(tag)
                 else:
                     self._logger.info(f"Creating new challenge named {challenge['name']}")
+                    self._logger.debug(challenge)
                     data = {'id': self._ctfd.post_challenge(challenge)['data']['id'], 'flags': [], 'hints': []}
                     self._challenges[challenge['name']] = data
                 for flag in flags:

@@ -2,6 +2,7 @@ import importlib
 import json
 import logging
 import os
+import pandas as pd
 import re
 import urllib
 import yaml
@@ -143,6 +144,34 @@ class CTFBuilder:
                 answers = f"{answers} {flag['content']},"
             answers = f'{answers[:-1]}\n'
         return answers
+
+    def get_csv(self):
+        challenges = self._ctfd.get_challenge_list()
+        output = []
+        for item in challenges['data']:
+            new_challenge = {}
+            challenge = self._ctfd.get_challenge(item['id'])['data']
+            new_challenge['name'] = challenge['name']
+            new_challenge['description'] = challenge['description']
+            new_challenge['category'] = challenge['category']
+            new_challenge['value'] = challenge['value']
+            new_challenge['type'] = challenge['value']
+            new_challenge['state'] = challenge['value']
+            new_challenge['max_attempts'] = challenge['value']
+            flags = self._ctfd.get_challenge_flags(challenge['id'])['data']
+            new_flags = []
+            for flag in flags:
+                new_flags.append(flag['content'])
+            new_challenge['flags'] = '\n'.join(new_flags)
+            hints = self._ctfd.get_challenge_hints(challenge['id'])['data']
+            new_hints = []
+            for hint in hints:
+                new_hints.append(hint['content'])
+            new_challenge['hints'] = '\n'.join(new_hints)
+            new_challenge['tags'] = ','.join(self._ctfd.get_challenge_tags(challenge['id'])['data'])
+            output.append(new_challenge)
+        df = pd.DataFrame(output)
+        return df.to_csv(index=False)
 
     def _export_ctfd_challenges(self):
         challenges = self._ctfd.get_challenge_list()

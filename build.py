@@ -31,7 +31,8 @@ def parse_args():
     group.add_argument('-c', '--config', type=argparse.FileType('r'), help='Use specified configuration file.')
     parser.add_argument('-b', '--build', action='store_true', help='Use configuration to build CTF')
     parser.add_argument('-a', '--answers', action='store_true', help='Use configuration to pull latest flags from CTFd instance.')
-    parser.add_argument('-e', '--export', action='store_true', help='Use configuration to export running CTFd instance to schema.')
+    parser.add_argument('-e', '--export-schema', action='store_true', help='Use configuration to export running CTFd instance to schema.')
+    parser.add_argument('-E', '--export-csv', action='store_true', help='Use configuration to export running CTFd challenges to CSV.')
     parser.add_argument('-C', '--category', help='Specify a directory name (or names in a comma separated list) within the schema to limit build to just that category. Defaults to All')
     return parser.parse_args()
 
@@ -39,7 +40,7 @@ def parse_args():
 def main():
     args = parse_args()
 
-    if args.schema and not args.export:
+    if args.schema and not args.export_schema:
         logger.debug(f'Using schema directory of \'{args.schema}\' from CLI arguments.')
         if not isdir(args.schema):
             raise Exception('Invalid CTF schema directory supplied: {args.schema}')
@@ -54,8 +55,8 @@ def main():
         print(json.dumps(config))
         sys.exit(0)
 
-    if not args.build and not args.answers and not args.export:
-        raise Exception('Specify one of -b/--build or -a/--answer or -e/--export arguments to take further action.')
+    if not args.build and not args.answers and not args.export_schema and not args.export_csv:
+        raise Exception('Specify one of -b/--build or -a/--answer or -e/--export-schema or -E/--export-csv arguments to take further action.')
         sys.exit(0)
 
     logger.debug(f"Using provided config {args.config}")
@@ -74,7 +75,10 @@ def main():
     elif args.answers:
         print(cb.get_answers())
 
-    elif args.export:
+    elif args.export_csv:
+        print(cb.get_csv())
+
+    elif args.export_schema:
         if not args.schema:
             raise Exception('Must specify a --schema when generating a configuration.')
         cb.export_ctf(config['schema'])

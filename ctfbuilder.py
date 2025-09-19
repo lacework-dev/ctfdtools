@@ -168,7 +168,11 @@ class CTFBuilder:
             for hint in hints:
                 new_hints.append(hint['content'])
             new_challenge['hints'] = '\n'.join(new_hints)
-            new_challenge['tags'] = ','.join(self._ctfd.get_challenge_tags(challenge['id'])['data'])
+            tags = self._ctfd.get_challenge_tags(challenge['id'])['data']
+            new_tags = []
+            for tag in tags:
+                new_tags.append(tag['value'])
+            new_challenge['tags'] = ','.join(new_tags)
             output.append(new_challenge)
         df = pd.DataFrame(output)
         return df.to_csv(index=False)
@@ -185,16 +189,23 @@ class CTFBuilder:
                 challenge['next_id'] = [x for x in challenges['data'] if x['id'] == challenge['next_id']][0]['name']
             if challenge['requirements']:
                 requirements = []
-                for requirement in challenge['requirements'].get('prerequisites', []):
-                    name = [x for x in challenges['data'] if x['id'] == requirement][0]['name']
-                    requirements.append(name)
+                try:
+                    for requirement in challenge['requirements'].get('prerequisites', []):
+                        for x in challenges['data']:
+                            if x['id'] == requirement:
+                                name = x['name']
+                        requirements.append(name)
+                except:
+                    self._logger.debug(f"{requirement} {x}")
                 challenge['requirements']['prerequisites'] = requirements
             challenge['hints'] = self._ctfd.get_challenge_hints(challenge['id'])['data']
             for hint in challenge['hints']:
                 del hint['id']
                 del hint['challenge']
                 del hint['challenge_id']
-                if len(hint['requirements']['prerequisites']) < 1:
+                if hint['requirements'] is None:
+                    del hint['requirements']
+                elif len(hint['requirements'].get('prerequisites', 0)) < 1:
                     del hint['requirements']
             challenge['flags'] = self._ctfd.get_challenge_flags(challenge['id'])['data']
             for flag in challenge['flags']:
@@ -219,7 +230,7 @@ class CTFBuilder:
                 del challenge['requirements']
             if not challenge['next_id']:
                 del challenge['next_id']
-            if not challenge['connection_info']:
+            if not challenge.get('connection_info', True):
                 del challenge['connection_info']
             if challenge['max_attempts'] == 0:
                 del challenge['max_attempts']
@@ -297,9 +308,14 @@ def parse_challenge(schema, challenge, config):
 
     def _export_ctfd_files(self):
         for file in self._ctfd.get_file_list()['data']:
+            self._logger.debug(f"Downloading file: {file['location']}")
             remote = f"{self._config['ctfd_url']}/files/{file['location']}"
             local = f"{self._schema}/files/{file['location'].split('/')[1]}"
-            urllib.request.urlretrieve(remote, local)
+            results = self._ctfd._request(remote)
+            with open(local, "wb") as f:
+                for chunk in results.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            self._logger.debug(f"Successfully downloaded file: {file['location']}")
 
     def _export_ctfd_pages(self):
         pages = self._ctfd.get_page_list()['data']

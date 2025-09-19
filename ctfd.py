@@ -55,8 +55,11 @@ class CTFd:
     def get_page_list(self):
         return self._request('pages')
 
-    def get_tag_list(self):
-        return self._request('tags')
+    def get_tag_list(self, value=None):
+        if value:
+            return self._request(f'tags?value={value}')
+        else:
+            return self._request('tags')
 
     def get_token_list(self):
         return self._request('tokens')
@@ -101,17 +104,26 @@ class CTFd:
         if files:
             del headers['Content-Type']
 
+        # when called to download a file the full URL is passed in
+        if "http" in path:
+            results = self._session.request(
+                method,
+                path,
+                headers=headers,
+                stream=True
+            )
+            return results
+
+        path = f"{self._url}/api/v1/{path}"
         results = self._session.request(
             method,
-            f"{self._url}/api/v1/{path}",
+            path,
             headers=headers,
             json=json,
             files=files
         )
-        if results.json().get('success') is not True:
-            raise Exception(f"{results.json()}")
 
         try:
             return results.json()
-        except:
+        except ValueError:
             raise Exception(f'CTFd API call unexpectedly returned a non-JSON object. Message: {results.text}')
